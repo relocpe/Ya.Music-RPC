@@ -1,0 +1,12 @@
+build/
+dist/
+*.dmg
+*.app
+.DS_Store
+Sources.bak*/
+snapshots/
+.venv/
+.claude/
+config.json
+*.log
+log.txt
