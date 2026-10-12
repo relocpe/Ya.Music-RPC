@@ -1,7 +1,6 @@
 import Foundation
 
-/// Что сейчас в плеере. `position`/`duration` могут быть nil: метаданные приходят
-/// из Media Session, а время — из <audio>-элемента, и второй иногда ещё не найден.
+// position/duration бывают nil: <audio> иногда ещё не найден
 struct TrackState: Equatable {
     var title: String
     var artist: String
@@ -17,12 +16,11 @@ struct TrackState: Equatable {
     var hasRepeat: Bool = false
     var url: String = ""
 
-    /// Идентификатор именно трека, без времени — по нему ловим смену песни.
     var identity: String { "\(title)\u{1}\(artist)\u{1}\(album)" }
 
     var isEmpty: Bool { title.isEmpty && artist.isEmpty }
 
-    /// Обложки Яндекса лежат по URL вида .../<id>/400x400 — размер меняется подстановкой.
+    // .../400x400 — размер подставляется в url
     func coverURL(size: Int) -> URL? {
         guard let base = coverURL, !base.isEmpty else { return nil }
         let resized = base.replacingOccurrences(
@@ -45,7 +43,6 @@ struct TrackState: Equatable {
     }
 }
 
-/// Состояние связи с приложением Яндекс Музыки — показываем его в меню.
 enum SourceStatus: Equatable {
     case notRunning
     case inspectorUnavailable(String)
@@ -62,7 +59,6 @@ enum SourceStatus: Equatable {
     }
 }
 
-/// Команды с карточки в меню-баре. Уходят в плеер через инспектор.
 enum RepeatMode: String, Equatable {
     case off, all, one
 

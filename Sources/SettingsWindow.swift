@@ -2,7 +2,6 @@ import AppKit
 import SwiftUI
 import Combine
 
-/// Настройки выпадают поповером из-под иконки в строке меню.
 @MainActor
 final class SettingsWindowController: NSObject, NSPopoverDelegate {
     private var popover: NSPopover?
@@ -12,8 +11,6 @@ final class SettingsWindowController: NSObject, NSPopoverDelegate {
     private var modelSub: AnyCancellable?
     private var windowObservers: [NSObjectProtocol] = []
 
-    /// Подгоняет поповер под содержимое: ширина всегда 300, высота по контенту,
-    /// и само содержимое снова растянуто ровно на всё окно поповера.
     private func fitContent() {
         guard let popover, popover.isShown, let hosting,
               let container = popover.contentViewController?.view else { return }
@@ -31,8 +28,7 @@ final class SettingsWindowController: NSObject, NSPopoverDelegate {
     }
     var onReconnect: (() -> Void)?
 
-    /// Правый край статус-айтема на экране не двигается, когда текст рядом
-    /// с иконкой становится шире, поэтому стрелку цепляем к нему.
+    // правый край айтема не двигается, цепляем стрелку к нему
     private func anchorRect(for button: NSStatusBarButton) -> NSRect {
         let side: CGFloat = min(22, button.bounds.width)
         return NSRect(x: button.bounds.maxX - side, y: 0, width: side, height: button.bounds.height)
@@ -94,9 +90,7 @@ final class SettingsWindowController: NSObject, NSPopoverDelegate {
 
     private var reanchorPending = false
 
-    /// Кнопка в строке меню поменяла ширину: даём статус-бару доразложиться,
-    /// потом заново показываем поповер от нового места и с размером по контенту.
-    /// Повторный show у открытого поповера только двигает его, не закрывая.
+    // ширина кнопки поменялась — показываем поповер заново (повторный show его только двигает)
     func reanchor() {
         guard popover?.isShown == true, !reanchorPending else { return }
         reanchorPending = true
@@ -142,7 +136,6 @@ private final class SettingsModel: ObservableObject {
         }
     }
     @Published var reconnected = false
-    /// Черновик ширины, пока тянешь ползунок: строка меню не дёргается на каждом шаге.
     @Published var draftWidth: Double = Config.load().menuBarMaxWidth ?? 130
 }
 
@@ -305,7 +298,7 @@ private struct SettingsView: View {
     }
 }
 
-/// Снимок поповера в PNG для ревью дизайна (без показа на экране).
+// png-снапшот поповера для ревью дизайна
 @MainActor
 func renderSettingsSnapshot(to path: String, dark: Bool) {
     let root = SettingsView(model: SettingsModel(), onReconnect: {})

@@ -1,7 +1,5 @@
 import Foundation
 
-/// Автозапуск через LaunchAgent. Плист лежит в ~/Library/LaunchAgents и
-/// подхватывается системой при входе в учётку.
 enum LaunchAtLogin {
     static let label = "com.samevamp.ya-music-rpc"
     static let legacyLabel = "com.samevamp.yandex-music-rpc"
@@ -11,8 +9,7 @@ enum LaunchAtLogin {
             .appendingPathComponent("Library/LaunchAgents/\(legacyLabel).plist")
     }
 
-    /// Старый LaunchAgent (до переименования): выгружаем и удаляем, а если автозапуск
-    /// был включён — включаем новый, чтобы не получилось два запуска при входе.
+    // чистим старый LaunchAgent (до переименования), чтобы не было двух запусков
     static func migrateLegacy() {
         guard FileManager.default.fileExists(atPath: legacyPlistURL.path) else { return }
         launchctl(["bootout", "gui/\(getuid())/\(legacyLabel)"])
@@ -30,8 +27,7 @@ enum LaunchAtLogin {
         FileManager.default.fileExists(atPath: plistURL.path)
     }
 
-    /// Из смонтированного образа автозапуск включать бессмысленно: после извлечения
-    /// путь в LaunchAgent перестанет существовать.
+    // из dmg не включаем: путь пропадёт после извлечения
     static var blockedReason: String? {
         guard let path = Bundle.main.bundleURL.standardized.path as String? else { return nil }
         if path.hasPrefix("/Volumes/") {
@@ -76,8 +72,7 @@ enum LaunchAtLogin {
         Log.info("автозапуск выключен")
     }
 
-    /// launchctl может ругаться, если сервис уже загружен или уже выгружен —
-    /// для нас это не ошибка, файл всё равно определяет поведение при входе.
+    // launchctl ругается на уже загруженный/выгруженный сервис — не ошибка
     private static func launchctl(_ arguments: [String]) {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/launchctl")

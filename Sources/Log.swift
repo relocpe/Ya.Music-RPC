@@ -1,7 +1,5 @@
 import Foundation
 
-/// Лог пишется в stderr и в ~/.config/ya-music-rpc/log.txt (последние ~200 КБ),
-/// чтобы можно было разобраться, почему пропала связь, уже после факта.
 enum Log {
     private static let queue = DispatchQueue(label: "ymrpc.log")
     private static let maxBytes = 200_000
@@ -36,7 +34,7 @@ enum Log {
                 size = handle.offsetInFile
                 try? handle.close()
             }
-            // Подрезаем файл, когда он разрастается.
+            // обрезаем
             if size > UInt64(maxBytes) * 2, let data = try? Data(contentsOf: fileURL) {
                 try? data.suffix(maxBytes).write(to: fileURL, options: .atomic)
             }

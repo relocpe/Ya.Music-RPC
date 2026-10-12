@@ -1,12 +1,8 @@
 import AppKit
 import Foundation
 
-/// Источник данных о треке: поднимает Node-инспектор в уже запущенном приложении
-/// Яндекс Музыки, вставляет в рендерер небольшой агент и опрашивает его.
-///
-/// Приложение — это Electron с включённым fuse `node_cli_inspect`, поэтому SIGUSR1
-/// заставляет главный процесс открыть инспектор на 127.0.0.1:9229. Перезапуск не нужен,
-/// воспроизведение не прерывается.
+// SIGUSR1 заставляет electron (fuse node_cli_inspect) открыть инспектор на 9229:
+// перезапуск не нужен, музыка не прерывается
 actor YandexMusicSource {
     private let bundleID = "ru.yandex.desktop.music"
 
@@ -143,8 +139,7 @@ actor YandexMusicSource {
         throw lastError
     }
 
-    /// Просит Node открыть инспектор. Сигнал шлём не чаще раза в 5 секунд —
-    /// повторный SIGUSR1 приложению не вредит, но и смысла в спаме нет.
+    // SIGUSR1 не чаще раза в 5с
     private func armInspector(pid: pid_t) async throws {
         if Date().timeIntervalSince(lastSignalAt) < 5 {
             try await Task.sleep(nanoseconds: 400_000_000)
@@ -160,7 +155,7 @@ actor YandexMusicSource {
         try await Task.sleep(nanoseconds: 1_200_000_000)
     }
 
-    /// На 9229 мог сесть посторонний Node-процесс — сверяем исполняемый файл.
+    // на 9229 мог сесть чужой node
     private func belongsToYandexMusic(_ connection: CDPConnection, executablePath: String?) async throws -> Bool {
         guard let expected = executablePath else { return true }
         let actual = try await connection.evaluate("String(process.execPath || '')", awaitPromise: false)
@@ -207,8 +202,7 @@ actor YandexMusicSource {
         )
     }
 
-    /// Плеер держит <audio> вне DOM, поэтому находим элементы прямо в куче
-    /// рендерера через Runtime.queryObjects и отдаём агенту.
+    // <audio> вне DOM — ищем через Runtime.queryObjects
     private func seedAudioPool(_ connection: CDPConnection) async -> String {
         let expression = Self.mainProcessWrapper(isAsync: true, body: Self.seedBody)
         do {
@@ -221,7 +215,6 @@ actor YandexMusicSource {
 
     // MARK: - JS
 
-    /// Общая обёртка: находит webContents окна плеера в главном процессе Electron.
     private static func mainProcessWrapper(isAsync: Bool = false, body: String) -> String {
         let prefix = isAsync ? "(async function () {" : "(function () {"
         return """
@@ -281,9 +274,7 @@ actor YandexMusicSource {
       return 'найдено элементов: ' + added + (problems.length ? ' | ' + problems.join('; ') : '');
     """#
 
-    /// Агент живёт в рендерере: собирает пул <audio> и отдаёт состояние плеера.
-    /// Метаданные берём из Media Session (её приложение заполняет для системы),
-    /// время — из активного <audio>.
+    // агент в рендерере: метаданные из Media Session, время из активного <audio>
     private static let agentJS = #"""
     (function () {
      try {

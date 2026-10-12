@@ -15,8 +15,7 @@ final class DiscordRPC {
         }
     }
 
-    /// Discord требует Application ID. Свой создаётся бесплатно (см. README) и
-    /// задаётся в config.json (`discordClientId`) или переменной YA_MUSIC_RPC_CLIENT_ID.
+    // нужен свой Application ID, см. README
     struct KnownApp: Equatable {
         let id: String
         let name: String
@@ -44,8 +43,7 @@ final class DiscordRPC {
     private var nextRetryAt = Date.distantPast
     private var lastSentAt = Date.distantPast
 
-    /// Последняя отправленная активность — чтобы не долбить Discord лишними кадрами
-    /// (он ограничивает SET_ACTIVITY примерно пятью запросами за 20 секунд).
+    // не спамим: у SET_ACTIVITY лимит ~5 запросов за 20с
     private var lastIdentity: String?
     private var lastPlaying: Bool?
     private var lastStart: Double?
@@ -86,8 +84,7 @@ final class DiscordRPC {
         }
     }
 
-    /// Свой ID из конфига — единственный кандидат: если он неверный, честнее
-    /// сказать об этом, чем молча подменить чужим.
+    // свой id единственный кандидат: лучше ошибка, чем подмена чужим
     private var candidates: [KnownApp] {
         if !clientID.isEmpty {
             return [KnownApp(id: clientID, name: "свой Application ID")]
@@ -95,7 +92,6 @@ final class DiscordRPC {
         return []
     }
 
-    /// Главная точка входа: вызывается на каждом опросе, сама решает, слать ли кадр.
     func update(with track: TrackState?) {
         queue.async { self.updateOnQueue(track) }
     }
@@ -128,7 +124,7 @@ final class DiscordRPC {
         guard ensureConnected() else { return }
 
         guard let track, !track.isEmpty else {
-            // Плеер молчит — снимаем присутствие, но только один раз.
+            // плеер молчит — снимаем присутствие один раз
             if !lastWasCleared {
                 if sendActivity(nil) {
                     resetActivityMemory()
@@ -162,7 +158,7 @@ final class DiscordRPC {
         // Начало трека «стоит на месте», пока играем ровно; сдвиг — это перемотка.
         if let start, let lastStart, abs(start - lastStart) > 3 { return true }
         if start != nil && lastStart == nil { return true }
-        // Разрешаем редкое обновление на случай, если Discord потерял активность.
+        // редкий форс-апдейт, вдруг Discord потерял активность
         return Date().timeIntervalSince(lastSentAt) > 120
     }
 
@@ -234,8 +230,7 @@ final class DiscordRPC {
         if !track.isPlaying { details = details.isEmpty ? "на паузе" : "⏸ " + details }
         if !details.isEmpty { activity["details"] = discordField(details) }
 
-        // Альбом в присутствии не показываем вовсе — в карточке он лишний.
-        // Подпись к обложке не ставим по той же причине.
+        // альбом и подпись обложки не показываем
         if let cover = track.coverURL(size: coverSize)?.absoluteString {
             activity["assets"] = ["large_image": cover]
         }
@@ -264,7 +259,7 @@ final class DiscordRPC {
         return "https://music.yandex.ru/search?text=\(escaped)"
     }
 
-    /// Discord требует от details/state от 2 до 128 символов.
+    // details/state: 2..128 символов
     private static func discordField(_ text: String) -> String {
         var value = text.trimmingCharacters(in: .whitespacesAndNewlines)
         if value.count > 128 { value = String(value.prefix(127)) + "…" }
@@ -301,7 +296,6 @@ final class DiscordRPC {
             return false
         }
 
-        // Уже подобранное приложение пробуем первым, чтобы не перебирать заново.
         let all = candidates
         let order = all.filter { $0.id == resolvedApp?.id } + all.filter { $0.id != resolvedApp?.id }
         var rejection: String?
@@ -410,7 +404,7 @@ final class DiscordRPC {
         }
     }
 
-    /// Читает один кадр. На PING отвечает PONG и читает следующий.
+    // на PING отвечаем PONG и читаем дальше
     private func readFrame(timeout: TimeInterval) -> (UInt32, [String: Any])? {
         var deadlineTimeout = timeval(tv_sec: Int(timeout), tv_usec: 0)
         setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &deadlineTimeout, socklen_t(MemoryLayout<timeval>.size))

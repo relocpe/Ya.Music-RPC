@@ -1,6 +1,5 @@
 import AppKit
 
-/// Иконка в строке меню: обложка + исполнитель, а по клику — карточка трека.
 @MainActor
 final class MenuBarController: NSObject, NSMenuDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -128,7 +127,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         if text.count > limit {
             text = String(text.prefix(limit - 1)).trimmingCharacters(in: .whitespaces) + "…"
         }
-        // Режем по ширине, чтобы длинное имя не выталкивало соседние значки.
         let maxWidth = CGFloat(config.menuBarMaxWidth ?? 130)
         let attrs: [NSAttributedString.Key: Any] = [.font: font]
         if (text as NSString).size(withAttributes: attrs).width > maxWidth {
@@ -152,7 +150,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         cardItem.view = nowPlayingView
         menu.addItem(cardItem)
 
-        // «Переподключиться» появляется только когда Discord отвалился.
         menu.addItem(reconnectSeparator)
         menu.addItem(reconnectItem)
 

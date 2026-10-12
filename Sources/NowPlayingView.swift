@@ -1,7 +1,6 @@
 import AppKit
 import CoreImage
 
-/// Полоска прогресса: тонкая в покое, при наведении толще и с ползунком.
 final class ProgressBarView: NSView {
     var progress: Double = 0 { didSet { needsDisplay = true } }
     var isActive: Bool = true { didSet { needsDisplay = true } }
@@ -65,7 +64,6 @@ final class ProgressBarView: NSView {
     }
 }
 
-/// Карточка «Сейчас играет» на подложке из размытой обложки.
 final class NowPlayingView: NSView {
     static let width: CGFloat = 272
 
@@ -138,7 +136,6 @@ final class NowPlayingView: NSView {
             .withSymbolConfiguration(.init(pointSize: 22, weight: .regular))
         addSubview(placeholderView, positioned: .below, relativeTo: coverButton)
 
-        // Текст по центру обложки, иконки ссылки и лайка — на линии названия.
         let icon: CGFloat = 22
         let textX = pad + cover + 12
         let titleY = pad + cover / 2 - 19
@@ -160,7 +157,6 @@ final class NowPlayingView: NSView {
         linkButton.action = #selector(linkTapped)
         addSubview(linkButton)
 
-        // Кнопки управления.
         var y = pad + cover + 12
         let playSize: CGFloat = 34
         let sideSize: CGFloat = 24
@@ -188,7 +184,6 @@ final class NowPlayingView: NSView {
         repeatButton.toolTip = "Повтор"
         repeatDot.frame = NSRect(x: repeatButton.frame.midX - 2, y: repeatButton.frame.maxY + 1, width: 4, height: 4)
 
-        // Назад/вперёд — нейтральные, акцент только у play и полоски.
         prevButton.contentTintColor = .labelColor
         nextButton.contentTintColor = .labelColor
         for button in [shuffleButton, prevButton, playButton, nextButton, repeatButton] { button.target = self }
@@ -317,7 +312,7 @@ final class NowPlayingView: NSView {
 
     private func applyAccent(_ color: NSColor, animated: Bool) {
         var rgb = color.usingColorSpace(.deviceRGB) ?? color
-        // Слишком кислотные цвета слегка приглушаем.
+        // кислотные приглушаем
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         rgb.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         if s > 0.8 && b > 0.85 {
@@ -435,7 +430,6 @@ final class NowPlayingView: NSView {
 }
 
 extension NSImage {
-    /// Маленькая сильно размытая копия обложки для подложки карточки.
     func blurredBackdrop() -> NSImage? {
         var rect = NSRect(origin: .zero, size: size)
         guard let cg = cgImage(forProposedRect: &rect, context: nil, hints: nil) else { return nil }

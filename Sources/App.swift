@@ -3,11 +3,10 @@ import AppKit
 @main
 @MainActor
 enum EntryPoint {
-    /// Делегат держим сильной ссылкой: NSApplication хранит свою слабой.
     private static var delegate: AppDelegate?
 
     static func main() {
-        // Запись в закрытый сокет Discord не должна убивать процесс.
+        // SIGPIPE: запись в закрытый сокет не должна убивать процесс
         _ = signal(SIGPIPE, SIG_IGN)
 
         if CommandLine.arguments.contains("--verbose") {
@@ -22,8 +21,7 @@ enum EntryPoint {
         Self.delegate = delegate
         application.delegate = delegate
         application.setActivationPolicy(.accessory) // только строка меню, без иконки в доке
-        // Menu-bar-only приложение без окон: macOS иначе помечает его
-        // простаивающим и убивает через несколько секунд (Automatic Termination).
+        // без окон macOS убивает такое приложение через пару секунд (automatic termination)
         application.disableRelaunchOnLogin()
         ProcessInfo.processInfo.disableAutomaticTermination("menu-bar RPC")
         ProcessInfo.processInfo.disableSuddenTermination()
@@ -95,7 +93,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar.update(track: track, source: status, discord: discord.status)
     }
 
-    /// Правки в config.json подхватываем на лету — без перезапуска приложения.
     private func reloadConfigIfNeeded() {
         let stamp = configModificationDate()
         guard stamp != configStamp else { return }
@@ -114,8 +111,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-/// Режим `--diagnose`: разово печатает, что видит приложение. Нужен, когда
-/// в меню написано «не подключено», а почему — непонятно.
+/// --diagnose: печатает, что видит приложение
 enum Diagnostics {
     static func runAndExit() -> Never {
         Log.verbose = true
@@ -162,7 +158,6 @@ enum Diagnostics {
                 .first { FileManager.default.fileExists(atPath: $0) }
             print("Сокет Discord:     \(socket ?? "не найден (Discord не запущен?)")")
 
-            // Показываем, что именно уходит в Discord — для текущего трека и для паузы.
             let paused = track.map { current -> TrackState in
                 var copy = current
                 copy.isPlaying = false

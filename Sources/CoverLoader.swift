@@ -1,7 +1,6 @@
 import AppKit
 
-/// Качает обложки и держит небольшой кеш, чтобы при каждом открытии меню
-/// не ходить в сеть заново.
+// кеш обложек, чтобы не качать на каждое открытие меню
 @MainActor
 final class CoverLoader {
     private var cache: [String: NSImage] = [:]
@@ -9,7 +8,6 @@ final class CoverLoader {
     private var inFlight: Set<String> = []
     private let limit = 12
 
-    /// Отдаёт картинку сразу, если она в кеше. Иначе качает и зовёт `then`.
     func image(for url: URL, then: @escaping (NSImage) -> Void) -> NSImage? {
         let key = url.absoluteString
         if let cached = cache[key] { return cached }
@@ -46,7 +44,6 @@ final class CoverLoader {
 }
 
 extension NSImage {
-    /// Квадратная миниатюра со скруглением — для строки меню-бара.
     func roundedThumbnail(side: CGFloat, cornerRadius: CGFloat, alpha: CGFloat = 1) -> NSImage {
         let target = NSSize(width: side, height: side)
         let result = NSImage(size: target)
@@ -57,7 +54,7 @@ extension NSImage {
                                 xRadius: cornerRadius, yRadius: cornerRadius)
         clip.addClip()
 
-        // Вписываем по центру, сохраняя пропорции (обложки квадратные, но подстрахуемся).
+        // вписываем с сохранением пропорций
         let source = size
         var drawRect = NSRect(origin: .zero, size: target)
         if source.width > 0, source.height > 0 {
@@ -76,7 +73,6 @@ extension NSImage {
 
 
 extension NSImage {
-    /// Насыщенный средний цвет обложки — для кнопки play и прогресса.
     func dominantColor() -> NSColor? {
         let sample = 24
         var rect = NSRect(origin: .zero, size: size)

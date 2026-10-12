@@ -18,9 +18,7 @@ enum CDPError: LocalizedError {
     }
 }
 
-/// Клиент Chrome DevTools Protocol поверх WebSocket. Говорит с Node-инспектором
-/// главного процесса Electron: один сокет, ответы разбираются по id запроса.
-/// Состояние защищено `lock`, поэтому класс безопасно передавать между задачами.
+// CDP поверх websocket, говорит с node-инспектором электрона
 final class CDPConnection: @unchecked Sendable {
     private let task: URLSessionWebSocketTask
     private let session: URLSession
@@ -34,7 +32,6 @@ final class CDPConnection: @unchecked Sendable {
         self.session = session
     }
 
-    /// Спрашивает у инспектора список целей и подключается к первой.
     static func connect(port: Int, timeout: TimeInterval = 5) async throws -> CDPConnection {
         let listURL = URL(string: "http://127.0.0.1:\(port)/json/list")!
         let cfg = URLSessionConfiguration.ephemeral
@@ -102,8 +99,7 @@ final class CDPConnection: @unchecked Sendable {
         waiting.values.forEach { $0(.failure(error)) }
     }
 
-    /// Захваты блокировки живут в синхронных помощниках — так они не пересекают
-    /// точки приостановки async-функции.
+    // lock держим только в синхронных хелперах, не через await
     private func nextRequestID() throws -> Int {
         lock.lock(); defer { lock.unlock() }
         if isClosed { throw CDPError.disconnected }
@@ -117,7 +113,7 @@ final class CDPConnection: @unchecked Sendable {
         pending[id] = handler
     }
 
-    /// Ровно одно возобновление: отвечает тот, кто первым забрал handler.
+    // handler забирает тот, кто первый успел
     private func takePending(_ id: Int) -> ((Result<[String: Any], Error>) -> Void)? {
         lock.lock(); defer { lock.unlock() }
         return pending.removeValue(forKey: id)
@@ -142,7 +138,6 @@ final class CDPConnection: @unchecked Sendable {
         }
     }
 
-    /// Выполняет выражение в главном процессе Electron и возвращает его значение.
     @discardableResult
     func evaluate(_ expression: String, awaitPromise: Bool = true, timeout: TimeInterval = 6) async throws -> Any? {
         let response = try await send(
@@ -168,7 +163,6 @@ final class CDPConnection: @unchecked Sendable {
         return (result["result"] as? [String: Any])?["value"]
     }
 
-    /// Оборачивает строку в корректный JS-литерал, чтобы вставлять код в код.
     static func jsLiteral(_ string: String) -> String {
         let data = try! JSONSerialization.data(withJSONObject: [string], options: [])
         let array = String(decoding: data, as: UTF8.self)

@@ -1,50 +1,38 @@
 import Foundation
 
-/// Настройки лежат в ~/.config/ya-music-rpc/config.json и перечитываются
-/// при каждом обращении к меню, чтобы правки подхватывались без пересборки.
+// ~/.config/ya-music-rpc/config.json, читается при каждом обращении
 struct Config: Codable, Equatable {
-    /// Application ID из https://discord.com/developers/applications.
-    /// Можно задать также переменной окружения YA_MUSIC_RPC_CLIENT_ID (она важнее).
-    /// Пусто — присутствие в Discord не включится (в логе будет предупреждение).
+    /// https://discord.com/developers/applications; env YA_MUSIC_RPC_CLIENT_ID важнее, пусто — rpc выключен
     var discordClientId: String = ""
 
-    /// Максимальная длина текста в меню-баре (символы, вместе с многоточием).
     var menuBarMaxChars: Int = 34
 
-    /// Показывать ли миниатюру обложки слева от текста в меню-баре.
     var showCoverInMenuBar: Bool = true
 
-    /// Показывать ли текст рядом с обложкой (false — только обложка).
     var showTextInMenuBar: Bool = true
 
-    /// Что писать в строке меню: "artist" или "title". Пусто — исполнитель.
     var menuBarText: String? = nil
 
-    /// Максимальная ширина текста в строке меню, pt. Пусто — 130.
+    /// pt, по умолчанию 130
     var menuBarMaxWidth: Double? = nil
 
-    /// Как часто опрашивать плеер, секунды.
     var pollIntervalSeconds: Double = 1.0
 
-    /// Порт Node-инспектора Яндекс Музыки. Node по умолчанию слушает 9229.
+    /// у node по умолчанию 9229
     var inspectorPort: Int = 9229
 
-    /// Размер обложки, которую отдаём Discord (в URL avatars.yandex.net).
     var discordCoverSize: Int = 400
 
-    /// Размер обложки для окна меню.
     var menuCoverSize: Int = 600
 
-    /// Слать ли в Discord тип активности «Слушает» вместо «Играет».
     var useListeningActivityType: Bool = true
 
-    /// Кнопка под присутствием со ссылкой на поиск трека.
-    /// По умолчанию выключена: ссылка ведёт на music.yandex.ru, а это выдаёт источник.
+    // выключено: ссылка ведёт на music.yandex.ru и выдаёт источник
     var showSearchButton: Bool = false
 
     static let clientIdEnvKey = "YA_MUSIC_RPC_CLIENT_ID"
 
-    /// ID с учётом переменной окружения: env > config.json > пусто.
+    // env > config.json > пусто
     var effectiveClientId: String {
         let env = ProcessInfo.processInfo.environment[Config.clientIdEnvKey]?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -52,7 +40,7 @@ struct Config: Codable, Equatable {
         return discordClientId.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// ID для вывода в лог и `--diagnose`: первые 4 и последние 2 символа.
+    // для логов: 4 первых и 2 последних символа
     static func maskedClientId(_ id: String) -> String {
         guard id.count > 6 else { return String(repeating: "•", count: id.count) }
         return "\(id.prefix(4))…\(id.suffix(2))"
@@ -63,14 +51,12 @@ struct Config: Codable, Equatable {
             .appendingPathComponent(".config/ya-music-rpc", isDirectory: true)
     }
 
-    /// Старая папка настроек (до переименования в Ya.Music RPC).
     static var legacyDirectory: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".config/yandex-music-rpc", isDirectory: true)
     }
 
-    /// Переносит config.json и log.txt из старой папки, если новой ещё нет.
-    /// Старую папку не трогаем — это резервная копия.
+    // переносим из старой папки, саму её не трогаем
     static func migrateLegacyIfNeeded() {
         let fm = FileManager.default
         guard !fm.fileExists(atPath: directory.path),
@@ -84,7 +70,7 @@ struct Config: Codable, Equatable {
                 }
             }
         } catch {
-            // Лог ещё может быть не готов — пишем в stderr.
+            // лог может быть не готов
             FileHandle.standardError.write(Data("миграция настроек не удалась: \(error.localizedDescription)\n".utf8))
         }
     }
