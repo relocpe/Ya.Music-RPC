@@ -132,7 +132,7 @@ enum Diagnostics {
             if config.effectiveClientId.isEmpty {
                 print("Discord client id: НЕ ЗАДАН (config.json: discordClientId или \(Config.clientIdEnvKey)), см. README")
             } else {
-                print("Discord client id: \(config.effectiveClientId) (свой, из конфига или \(Config.clientIdEnvKey))")
+                print("Discord client id: \(Config.maskedClientId(config.effectiveClientId)) (свой, из конфига или \(Config.clientIdEnvKey))")
             }
 
             let running = NSRunningApplication.runningApplications(withBundleIdentifier: "ru.yandex.desktop.music")
