@@ -1,0 +1,18 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: build.sh
+        run: ./build.sh
+      - name: проверка бандла
+        run: |
+          test -x "build/Ya.Music RPC.app/Contents/MacOS/YaMusicRPC"
+          plutil -lint "build/Ya.Music RPC.app/Contents/Info.plist"
