@@ -1,0 +1,38 @@
+name: Баг
+description: Что-то не работает или работает не так
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Что случилось
+      description: Что ты делал, что ожидал и что получилось.
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: Версия macOS
+      placeholder: "14.5, Apple Silicon"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Версия Ya.Music RPC
+      description: Например 1.0.0, или хеш коммита, если собирал сам.
+    validations:
+      required: true
+  - type: input
+    id: yandex
+    attributes:
+      label: Версия Яндекс Музыки
+      description: Если знаешь.
+  - type: textarea
+    id: diagnose
+    attributes:
+      label: Вывод --diagnose
+      description: |
+        Запусти `"/Applications/Ya.Music RPC.app/Contents/MacOS/YaMusicRPC" --diagnose` и вставь результат.
+        Перед отправкой удали личное: в выводе есть твой Discord Application ID, названия треков и пути с именем пользователя.
+      render: text
