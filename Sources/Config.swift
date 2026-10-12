@@ -52,6 +52,12 @@ struct Config: Codable, Equatable {
         return discordClientId.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// ID для вывода в лог и `--diagnose`: первые 4 и последние 2 символа.
+    static func maskedClientId(_ id: String) -> String {
+        guard id.count > 6 else { return String(repeating: "•", count: id.count) }
+        return "\(id.prefix(4))…\(id.suffix(2))"
+    }
+
     static var directory: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".config/ya-music-rpc", isDirectory: true)

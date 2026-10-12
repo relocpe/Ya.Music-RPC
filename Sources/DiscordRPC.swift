@@ -312,12 +312,12 @@ final class DiscordRPC {
                 case .ready:
                     resolvedApp = app
                     setStatus(.connected(app.name))
-                    Log.info("Discord: подключился через \(path), приложение «\(app.name)» (\(app.id))")
+                    Log.info("Discord: подключился через \(path), приложение «\(app.name)» (\(Config.maskedClientId(app.id)))")
                     resetActivityMemory()
                     return true
                 case .invalidClientID(let message):
                     rejection = message
-                    Log.warn("Discord отверг Application ID \(app.id): \(message)")
+                    Log.warn("Discord отверг Application ID \(Config.maskedClientId(app.id)): \(message)")
                 case .failed:
                     break
                 }

@@ -34,5 +34,5 @@ body:
       label: Вывод --diagnose
       description: |
         Запусти `"/Applications/Ya.Music RPC.app/Contents/MacOS/YaMusicRPC" --diagnose` и вставь результат.
-        Перед отправкой удали личное: в выводе есть твой Discord Application ID, названия треков и пути с именем пользователя.
+        Перед отправкой удали личное: Discord Application ID в выводе уже сокращён, но названия треков и пути с именем пользователя.
       render: text
