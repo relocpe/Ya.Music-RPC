@@ -1,5 +1,7 @@
 # Ya.Music RPC
 
+[![build](https://github.com/samevamp/Ya.Music-RPC/actions/workflows/build.yml/badge.svg)](https://github.com/samevamp/Ya.Music-RPC/actions/workflows/build.yml)
+
 **Discord Rich Presence для десктопной Яндекс Музыки + мини-плеер в строке меню macOS.**
 
 ![](docs/screenshot-1.png)
