@@ -2,7 +2,7 @@
 
 [![build](https://github.com/samevamp/Ya.Music-RPC/actions/workflows/build.yml/badge.svg)](https://github.com/samevamp/Ya.Music-RPC/actions/workflows/build.yml)
 
-Приложение для меню-бара: показывает в Discord, что играет в десктопной Яндекс Музыке, и даёт мини-плеер прямо в строке меню.
+RPC для Discord, через интеграцию с декстоп версией Яндекс Музыки.
 
 
 ![](docs/screenshot-1.png)
