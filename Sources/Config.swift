@@ -105,3 +105,25 @@ struct Config: Codable, Equatable {
         }
     }
 }
+
+// Синтезированный Decodable требует все неопциональные ключи: конфиг из README
+// ({"discordClientId": "..."}) или от старой версии без нового поля целиком падал
+// в значения по умолчанию, а окно настроек потом перезаписывало файл без Client ID.
+extension Config {
+    init(from decoder: Decoder) throws {
+        self.init()
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        discordClientId = try c.decodeIfPresent(String.self, forKey: .discordClientId) ?? discordClientId
+        menuBarMaxChars = try c.decodeIfPresent(Int.self, forKey: .menuBarMaxChars) ?? menuBarMaxChars
+        showCoverInMenuBar = try c.decodeIfPresent(Bool.self, forKey: .showCoverInMenuBar) ?? showCoverInMenuBar
+        showTextInMenuBar = try c.decodeIfPresent(Bool.self, forKey: .showTextInMenuBar) ?? showTextInMenuBar
+        menuBarText = try c.decodeIfPresent(String.self, forKey: .menuBarText)
+        menuBarMaxWidth = try c.decodeIfPresent(Double.self, forKey: .menuBarMaxWidth)
+        pollIntervalSeconds = try c.decodeIfPresent(Double.self, forKey: .pollIntervalSeconds) ?? pollIntervalSeconds
+        inspectorPort = try c.decodeIfPresent(Int.self, forKey: .inspectorPort) ?? inspectorPort
+        discordCoverSize = try c.decodeIfPresent(Int.self, forKey: .discordCoverSize) ?? discordCoverSize
+        menuCoverSize = try c.decodeIfPresent(Int.self, forKey: .menuCoverSize) ?? menuCoverSize
+        useListeningActivityType = try c.decodeIfPresent(Bool.self, forKey: .useListeningActivityType) ?? useListeningActivityType
+        showSearchButton = try c.decodeIfPresent(Bool.self, forKey: .showSearchButton) ?? showSearchButton
+    }
+}

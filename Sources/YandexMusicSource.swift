@@ -125,6 +125,12 @@ actor YandexMusicSource {
                     candidate.close()
                     throw CDPError.remote("порт \(config.inspectorPort) занят другим Node-процессом")
                 }
+                // actor реентерабелен на await: параллельный tick() мог подключиться раньше
+                if let existing = connection, connectedPID == pid {
+                    candidate.close()
+                    return existing
+                }
+                connection?.close()
                 connection = candidate
                 connectedPID = pid
                 Log.info("подключился к инспектору Яндекс Музыки (pid \(pid))")

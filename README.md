@@ -21,7 +21,7 @@
 
 ## Установка
 
-1. Скачайте dmg из [релизов](https://github.com/samevamp/Ya.Music-RPC/releases/latest).
+1. Скачайте dmg из [релизов](https://github.com/relocpe/Ya.Music-RPC/releases/latest).
 2. Перетащите `Ya.Music RPC.app` в папку «Программы».
 3. Приложение подписано ad-hoc. При первом запуске откройте его через ПКМ → «Открыть» или снимите карантин:
 
@@ -67,7 +67,7 @@
 ## Сборка
 
 ```bash
-git clone https://github.com/samevamp/Ya.Music-RPC.git
+git clone https://github.com/relocpe/Ya.Music-RPC.git
 cd Ya.Music-RPC
 ./build.sh            # build/Ya.Music RPC.app
 ./package.sh          # сборка и dmg
@@ -86,7 +86,7 @@ cd Ya.Music-RPC
 Для подробного вывода используйте `--verbose`. Лог сохраняется в `~/.config/ya-music-rpc/log.txt`.
 
 - **«Приложение не запущено».** Откройте Яндекс Музыку.
-- **Порт 9229 занят.** Его использует другой процесс Node.js с `--inspect`. Закройте его или измените `inspectorPort`.
+- **Порт 9229 занят.** Его использует другой процесс Node.js с `--inspect`. Закройте его. `SIGUSR1` всегда открывает инспектор на 9229, поэтому `inspectorPort` помогает, только если Яндекс Музыка сама запущена с `--inspect=<порт>`.
 - **Статус не отображается в Discord.** Проверьте, что в Discord включено «Отображать текущую активность как статус» и задан `discordClientId`.
 - **Тип статуса не тот.** Он задаётся `useListeningActivityType`: `true` — «Слушает», `false` — «Играет».
 - **Перестало работать после обновления Яндекс Музыки.** Возможно, в новой версии отключён инспектор.
